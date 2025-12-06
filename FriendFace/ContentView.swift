@@ -5,16 +5,18 @@
 //  Created by Ali Soner Inceoglu on 06.12.25.
 //
 
+import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @State private var users: [User] = []
+    @Environment(\.modelContext) var modelContext
+    @Query(sort: \User.name) var users: [User]
     
     var body: some View {
         NavigationStack {
             List(users) { user in
                 NavigationLink(value: user) {
-                    HStack {
+                    HStack(spacing: 8) {
                         VStack(alignment: .leading) {
                             Text(user.name)
                                 .font(.subheadline)
@@ -52,7 +54,9 @@ struct ContentView: View {
             
             let decoded = try decoder.decode([User].self, from: data)
             
-            users = decoded
+            for user in decoded {
+                modelContext.insert(user)
+            }
             
         } catch {
             print(error.localizedDescription)
@@ -62,4 +66,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modelContainer(for: User.self)
 }
